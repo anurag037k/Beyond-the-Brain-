@@ -6,99 +6,199 @@
     <title>Admin Dashboard | Beyond The Brain</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 text-gray-800 font-sans p-4 md:p-8">
 
-    <!-- Top Navigation -->
-    <nav class="bg-slate-900 text-white p-4 shadow-md">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-wide">Admin Dashboard</h1>
-            <span class="bg-blue-600 px-3 py-1 text-xs rounded-full">Beyond The Brain Event</span>
-        </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto mt-8 px-4">
+    <div class="max-w-6xl mx-auto bg-white rounded border border-gray-300 p-6 shadow-sm">
         
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h3 class="text-gray-500 text-sm font-medium uppercase">Total Registrations</h3>
-                <p id="totalRegs" class="text-4xl font-bold text-slate-800 mt-2">0</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h3 class="text-gray-500 text-sm font-medium uppercase">Claimed Revenue</h3>
-                <p id="totalRev" class="text-4xl font-bold text-green-600 mt-2">₹0</p>
-                <p class="text-xs text-gray-400 mt-1">*Verify UTRs to confirm</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h3 class="text-gray-500 text-sm font-medium uppercase">Actions</h3>
-                <button onclick="clearData()" class="mt-4 w-full bg-red-100 text-red-600 hover:bg-red-200 py-2 rounded font-medium transition text-sm">
-                    Clear All Data
-                </button>
-            </div>
+        <!-- Login Form -->
+        <div id="loginBox" class="max-w-sm mx-auto text-center py-8">
+            <h1 class="text-xl font-bold mb-4">Admin Login</h1>
+            <input type="password" id="adminPass" placeholder="Enter environment password" class="w-full border p-2 rounded mb-3 text-sm focus:outline-none focus:border-blue-500">
+            <button onclick="login()" class="w-full bg-blue-600 text-white font-medium py-2 rounded text-sm hover:bg-blue-700">Access Panel</button>
+            <p id="errMsg" class="text-xs text-red-600 mt-2 hidden">Invalid password.</p>
         </div>
 
-        <!-- Data Table -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div class="p-4 border-b border-gray-200 bg-gray-50">
-                <h2 class="font-semibold text-gray-800">Registration & Payment Verification</h2>
+        <!-- Dashboard Panel -->
+        <div id="dashboard" class="hidden">
+            <div class="flex justify-between items-center mb-6 border-b pb-3">
+                <h1 class="text-lg font-bold">Admin Dashboard</h1>
+                <button onclick="logout()" class="text-xs text-gray-500 hover:underline">Logout</button>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50 text-gray-500 text-xs uppercase">
-                            <th class="p-4 border-b">Reg ID</th>
-                            <th class="p-4 border-b">Transaction ID / UTR</th>
-                            <th class="p-4 border-b">Name</th>
-                            <th class="p-4 border-b">Email</th>
-                            <th class="p-4 border-b">Phone</th>
-                            <th class="p-4 border-b">Institution</th>
-                            <th class="p-4 border-b">Date</th>
+
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-gray-50 border p-3 rounded text-center">
+                    <p class="text-xs text-gray-500 uppercase">Total Registrations</p>
+                    <p id="totalUsers" class="text-2xl font-bold">0</p>
+                </div>
+                <div class="bg-yellow-50 border border-yellow-200 p-3 rounded text-center">
+                    <p class="text-xs text-yellow-700 uppercase font-semibold">Pending Payments</p>
+                    <p id="pendingCount" class="text-2xl font-bold text-yellow-800">0</p>
+                </div>
+                <div class="bg-green-50 border border-green-200 p-3 rounded text-center">
+                    <p class="text-xs text-green-700 uppercase font-semibold">Confirmed Payments</p>
+                    <p id="confirmedCount" class="text-2xl font-bold text-green-800">0</p>
+                </div>
+                <div class="bg-gray-50 border p-3 rounded text-center">
+                    <p class="text-xs text-gray-500 uppercase">Verified Revenue</p>
+                    <p id="totalRevenue" class="text-2xl font-bold text-green-600">₹0</p>
+                </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex gap-2">
+                    <button onclick="setFilter('ALL')" id="filterAll" class="px-3 py-1 text-xs border rounded bg-gray-800 text-white">All</button>
+                    <button onclick="setFilter('PENDING')" id="filterPending" class="px-3 py-1 text-xs border rounded bg-white text-gray-700">Pending</button>
+                    <button onclick="setFilter('APPROVED')" id="filterApproved" class="px-3 py-1 text-xs border rounded bg-white text-gray-700">Confirmed</button>
+                    <button onclick="setFilter('REJECTED')" id="filterRejected" class="px-3 py-1 text-xs border rounded bg-white text-gray-700">Rejected</button>
+                </div>
+                <button onclick="clearData()" class="text-xs text-red-600 hover:underline">Clear Database</button>
+            </div>
+
+            <!-- Registrations Table -->
+            <div class="overflow-x-auto border rounded mb-4">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-gray-100 border-b">
+                        <tr>
+                            <th class="p-2 border-r">Reg ID</th>
+                            <th class="p-2 border-r">UTR Number</th>
+                            <th class="p-2 border-r">Name</th>
+                            <th class="p-2 border-r">Email</th>
+                            <th class="p-2 border-r">Phone</th>
+                            <th class="p-2 border-r">Institution</th>
+                            <th class="p-2 border-r">Payment Status</th>
+                            <th class="p-2">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody" class="text-sm text-gray-700">
-                        <!-- Data will be populated here -->
-                    </tbody>
+                    <tbody id="tableBody"></tbody>
                 </table>
             </div>
         </div>
+
     </div>
 
     <script>
-        function loadData() {
-            const users = JSON.parse(localStorage.getItem('registrations')) || [];
-            const tbody = document.getElementById('tableBody');
-            
-            document.getElementById('totalRegs').innerText = users.length;
-            document.getElementById('totalRev').innerText = '₹' + (users.length * 119).toLocaleString();
+        let currentPass = '';
+        let allData = [];
+        let currentFilter = 'ALL';
 
+        async function login() {
+            const pass = document.getElementById('adminPass').value;
+            const res = await fetch('/api/admin/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pass })
+            });
+
+            if (res.ok) {
+                const result = await res.json();
+                currentPass = pass;
+                allData = result.data;
+                document.getElementById('loginBox').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                updateDashboard();
+            } else {
+                document.getElementById('errMsg').classList.remove('hidden');
+            }
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            ['All', 'Pending', 'Approved', 'Rejected'].forEach(f => {
+                const btn = document.getElementById('filter' + f);
+                if (btn) btn.className = 'px-3 py-1 text-xs border rounded bg-white text-gray-700';
+            });
+            const activeBtn = document.getElementById('filter' + filter.charAt(0) + filter.slice(1).toLowerCase());
+            if (activeBtn) activeBtn.className = 'px-3 py-1 text-xs border rounded bg-gray-800 text-white';
+
+            renderTable();
+        }
+
+        function updateDashboard() {
+            const pending = allData.filter(r => r.status === 'PENDING').length;
+            const confirmed = allData.filter(r => r.status === 'APPROVED').length;
+
+            document.getElementById('totalUsers').innerText = allData.length;
+            document.getElementById('pendingCount').innerText = pending;
+            document.getElementById('confirmedCount').innerText = confirmed;
+            document.getElementById('totalRevenue').innerText = '₹' + (confirmed * 119);
+
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
-            if (users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-gray-500">No registrations yet.</td></tr>';
+
+            let filteredData = allData;
+            if (currentFilter !== 'ALL') {
+                filteredData = allData.filter(r => r.status === currentFilter);
+            }
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-500">No records found.</td></tr>';
                 return;
             }
 
-            users.reverse().forEach(user => {
-                const row = `<tr class="hover:bg-gray-50">
-                    <td class="p-4 border-b font-mono text-xs text-gray-500">${user.id}</td>
-                    <td class="p-4 border-b font-mono text-sm font-bold text-green-700 bg-green-50">${user.transactionId || 'N/A'}</td>
-                    <td class="p-4 border-b font-medium text-gray-900">${user.name}</td>
-                    <td class="p-4 border-b">${user.email}</td>
-                    <td class="p-4 border-b">${user.phone}</td>
-                    <td class="p-4 border-b">${user.institution}</td>
-                    <td class="p-4 border-b text-xs">${user.date}</td>
-                </tr>`;
-                tbody.innerHTML += row;
+            filteredData.forEach(r => {
+                let statusBadge = `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-800">Pending</span>`;
+                if (r.status === 'APPROVED') {
+                    statusBadge = `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-800">Confirmed</span>`;
+                } else if (r.status === 'REJECTED') {
+                    statusBadge = `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-800">Rejected</span>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-2 border-r font-mono text-gray-500">${r.id}</td>
+                        <td class="p-2 border-r font-mono font-bold text-blue-700 bg-blue-50">${r.utr}</td>
+                        <td class="p-2 border-r font-medium">${r.name}</td>
+                        <td class="p-2 border-r">${r.email}</td>
+                        <td class="p-2 border-r">${r.phone}</td>
+                        <td class="p-2 border-r">${r.institution}</td>
+                        <td class="p-2 border-r">${statusBadge}</td>
+                        <td class="p-2 space-x-1">
+                            ${r.status !== 'APPROVED' ? `<button onclick="updateStatus('${r.id}', 'APPROVED')" class="px-2 py-1 bg-green-600 text-white rounded text-[10px] hover:bg-green-700">Approve</button>` : ''}
+                            ${r.status !== 'REJECTED' ? `<button onclick="updateStatus('${r.id}', 'REJECTED')" class="px-2 py-1 bg-red-600 text-white rounded text-[10px] hover:bg-red-700">Reject</button>` : ''}
+                        </td>
+                    </tr>`;
             });
         }
 
-        function clearData() {
-            if(confirm('Are you sure you want to delete all registrations? This cannot be undone.')) {
-                localStorage.removeItem('registrations');
-                loadData();
+        async function updateStatus(regId, status) {
+            const res = await fetch('/api/admin/update-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: currentPass, regId, status })
+            });
+
+            if (res.ok) {
+                const result = await res.json();
+                allData = result.data;
+                updateDashboard();
+            } else {
+                alert('Failed to update status.');
             }
         }
 
-        window.onload = loadData;
+        async function clearData() {
+            if (confirm("Delete all registration data?")) {
+                await fetch('/api/admin/clear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: currentPass })
+                });
+                login();
+            }
+        }
+
+        function logout() {
+            currentPass = '';
+            document.getElementById('adminPass').value = '';
+            document.getElementById('loginBox').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+        }
     </script>
 </body>
 </html>

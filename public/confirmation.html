@@ -3,39 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Received</title>
+    <title>Registration Confirmed | Beyond The Brain</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 flex items-center justify-center min-h-screen">
+<body class="bg-gray-100 text-gray-800 font-sans p-4 md:p-8 flex items-center justify-center min-h-screen">
 
-    <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-gray-100 text-center">
-        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </div>
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">Registration Received</h1>
-        <p class="text-gray-500 mb-6">Your details and payment reference have been submitted.</p>
+    <div class="max-w-md w-full bg-white rounded border border-gray-300 p-6 text-center shadow-sm">
         
-        <div class="bg-gray-50 p-4 rounded-lg text-left text-sm mb-6 border border-gray-200 space-y-2">
-            <p><strong>Event:</strong> Beyond The Brain</p>
-            <p><strong>Amount Paid:</strong> ₹119</p>
-            <p><strong>Transaction ID:</strong> <span id="displayTxn" class="font-mono text-blue-600">Loading...</span></p>
-            <div class="mt-4 p-3 bg-yellow-50 border border-yellow-100 rounded text-xs text-yellow-800">
-                <strong>Status: Pending Verification</strong><br>
-                We will verify your UTR number and send the meeting link to your registered Mobile number shortly.
-            </div>
+        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-xl">
+            ✓
         </div>
 
-        <a href="index.html" class="text-blue-600 hover:underline text-sm font-medium">Return to Home</a>
+        <h1 class="text-xl font-bold text-gray-800">Registration Submitted</h1>
+        <p class="text-xs text-gray-500 mt-1">Thank you for registering for <strong>BEYOND THE BRAIN</strong>.</p>
+
+        <div class="bg-gray-50 border border-gray-200 rounded p-4 mt-6 text-left text-xs space-y-2">
+            <p><strong>Registration ID:</strong> <span id="confId" class="font-mono text-blue-600">---</span></p>
+            <p><strong>Name:</strong> <span id="confName">---</span></p>
+            <p><strong>UTR Ref:</strong> <span id="confUtr" class="font-mono">---</span></p>
+            <p><strong>Amount Paid:</strong> ₹119</p>
+        </div>
+
+        <p class="text-xs text-gray-500 mt-4">We will verify your transaction ID and send the webinar link to your email prior to the event.</p>
+
+        <a href="index.html" class="inline-block mt-6 text-xs text-blue-600 hover:underline">
+            ← Return to Registration Page
+        </a>
     </div>
 
     <script>
-        // Load the transaction ID from the session storage
-        const latestReg = JSON.parse(sessionStorage.getItem('latest_registration'));
-        if(latestReg && latestReg.transactionId) {
-            document.getElementById('displayTxn').innerText = latestReg.transactionId;
-        } else {
-            document.getElementById('displayTxn').innerText = 'N/A';
+        const record = JSON.parse(sessionStorage.getItem('last_registration'));
+        if (record) {
+            document.getElementById('confId').innerText = record.id;
+            document.getElementById('confName').innerText = record.name;
+            document.getElementById('confUtr').innerText = record.utr;
         }
     </script>
+
 </body>
 </html>
