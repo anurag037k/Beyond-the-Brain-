@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Beyond The Brain</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <!-- Top Navigation -->
+    <nav class="bg-slate-900 text-white p-4 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-wide">Admin Dashboard</h1>
+            <span class="bg-blue-600 px-3 py-1 text-xs rounded-full">Beyond The Brain Event</span>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto mt-8 px-4">
+        
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h3 class="text-gray-500 text-sm font-medium uppercase">Total Registrations</h3>
+                <p id="totalRegs" class="text-4xl font-bold text-slate-800 mt-2">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h3 class="text-gray-500 text-sm font-medium uppercase">Claimed Revenue</h3>
+                <p id="totalRev" class="text-4xl font-bold text-green-600 mt-2">₹0</p>
+                <p class="text-xs text-gray-400 mt-1">*Verify UTRs to confirm</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h3 class="text-gray-500 text-sm font-medium uppercase">Actions</h3>
+                <button onclick="clearData()" class="mt-4 w-full bg-red-100 text-red-600 hover:bg-red-200 py-2 rounded font-medium transition text-sm">
+                    Clear All Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-4 border-b border-gray-200 bg-gray-50">
+                <h2 class="font-semibold text-gray-800">Registration & Payment Verification</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 text-xs uppercase">
+                            <th class="p-4 border-b">Reg ID</th>
+                            <th class="p-4 border-b">Transaction ID / UTR</th>
+                            <th class="p-4 border-b">Name</th>
+                            <th class="p-4 border-b">Email</th>
+                            <th class="p-4 border-b">Phone</th>
+                            <th class="p-4 border-b">Institution</th>
+                            <th class="p-4 border-b">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="text-sm text-gray-700">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadData() {
+            const users = JSON.parse(localStorage.getItem('registrations')) || [];
+            const tbody = document.getElementById('tableBody');
+            
+            document.getElementById('totalRegs').innerText = users.length;
+            document.getElementById('totalRev').innerText = '₹' + (users.length * 119).toLocaleString();
+
+            tbody.innerHTML = '';
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-gray-500">No registrations yet.</td></tr>';
+                return;
+            }
+
+            users.reverse().forEach(user => {
+                const row = `<tr class="hover:bg-gray-50">
+                    <td class="p-4 border-b font-mono text-xs text-gray-500">${user.id}</td>
+                    <td class="p-4 border-b font-mono text-sm font-bold text-green-700 bg-green-50">${user.transactionId || 'N/A'}</td>
+                    <td class="p-4 border-b font-medium text-gray-900">${user.name}</td>
+                    <td class="p-4 border-b">${user.email}</td>
+                    <td class="p-4 border-b">${user.phone}</td>
+                    <td class="p-4 border-b">${user.institution}</td>
+                    <td class="p-4 border-b text-xs">${user.date}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function clearData() {
+            if(confirm('Are you sure you want to delete all registrations? This cannot be undone.')) {
+                localStorage.removeItem('registrations');
+                loadData();
+            }
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
